@@ -1,4 +1,4 @@
-name: Build MusicFree APK
+name: Build and Release MusicFree APK
 
 on:
   push:
@@ -8,6 +8,9 @@ on:
 jobs:
   build:
     runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      actions: read
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
@@ -36,8 +39,18 @@ jobs:
       - name: Build APK
         run: ./gradlew assembleTempoDebug --stacktrace
 
-      - name: Upload APK
-        uses: actions/upload-artifact@v4
+      - name: Create Release and Upload APK
+        uses: softprops/action-gh-release@v2
         with:
-          name: MusicFree-Player
-          path: app/build/outputs/apk/tempo/debug/*.apk
+          name: MusicFree Player v1.0.0
+          tag_name: v1.0.0
+          body: |
+            MusicFree Player - Android client for Subsonic/Navidrome/music-free-site
+            
+            Based on Tempo (CappielloAntonio/tempo) v3.9.0
+            Modified to work with ansgoo/music-free-site
+          files: app/build/outputs/apk/tempo/debug/*.apk
+          draft: false
+          prerelease: false
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
